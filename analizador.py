@@ -81,4 +81,14 @@ if __name__ == "__main__":
     #analyzer.plot_box("brillo_solar" ,"estacion2"  )
     #analyzer.report_all_box_clima( online=False)
     #analyzer.build_up_report()
-    analyzer.report_all_precios()
+    #analyzer.report_all_precios()
+    analyzer.report_all_performance()
+    analyzer.build_up_report_clima_precios( )
+    analyzer.build_up_report_clima_rendimiento( ) # experto
+    analyzer.build_up_report_clima_rendimiento( 'min'  ) # ministerio
+    #analyzer.build_up_report_clima_rendimiento( 'exp' , 'Suaza')
+    #analyzer.build_up_report_clima_rendimiento( 'min' , 'Suaza' )
+    
+
+    
+    

@@ -73,7 +73,7 @@ class analizador():
         self.output = output
 
       
-
+        print( self.df['rendimiento_exp'].head()) 
         self.report = '' # el reporte enpieza en blanco
 
         self.init_report()
@@ -113,7 +113,21 @@ class analizador():
         <h1> Analisis explotario de datos </h1>
         """
         return 
-        
+
+    def  fin_report(self):
+
+        self.report +=  """ 
+        </div></body> 
+        <script src="http://code.jquery.com/jquery.js"></script>
+        <script src="js/bootstrap.min.js"></script> 
+        <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+        <script>
+        w3IncludeHTML();
+        </script>
+        </html>
+        """ 
+
+    
     def plot_save(self,  variable , estacion ,  online = False ,save = False   ):
         ss = None
         try:
@@ -146,18 +160,18 @@ class analizador():
         names = []
         name_file = 'all_{}'.format(variable)
         for estacion in estaciones:
-            try :
-                print(variable)
-                print(estacion)
-                ss = self.df[variable].loc[estacion]
+            #try :
+            print(variable)
+            print(estacion)
+            ss = self.df[variable].loc[estacion]
             
-                serie = pd.Series(ss , index = ss.index )
-                series.append( serie )
-                name = '{}_{}'.format( variable , estacion )
-                names.append(name)
-            except:
-                print( "NO data para la serie")
-                continue
+            serie = pd.Series(ss , index = ss.index )
+            series.append( serie )
+            name = '{}_{}'.format( variable , estacion )
+            names.append(name)
+                #except:
+             #   print( "NO data para la serie")
+              #  continue
             
         if not series :
             return False
@@ -417,6 +431,17 @@ class analizador():
         self.add_blocks_many( arguments , online , ty="serie")
         arguments = [ [ "precios" , keys_ton , ""] ]
         self.add_blocks_many( arguments , online , ty="serie")
+
+    def report_all_performance(self, online = False):
+
+        keys = ['Guadalupe' , 'Suaza']
+        arguments=  [  [ 'rendimiento_min' , keys , "" ] , 
+                       [ 'rendimiento_exp' , keys , "" ]
+        ]
+
+        self.add_blocks_many( arguments , online , ty = "serie")
+        
+
         
     def flush_report(self, output):
 
@@ -428,6 +453,52 @@ class analizador():
             f.write( self.report )
 
 
+    def build_up_report_clima_precios( self ):
+        
+        ser = './series/'
+        series = [ f for f in os.listdir(ser) ]
+        series.remove('precios.html')
+        precios = "precios.html"
+        
+        self.init_report()
+
+        for serie in series :
+            block = '<iframe style="border: none;" src="./data/series/{}" width="100%" height="600px"></iframe>'.format(serie)
+            block += '<iframe style="border: none;" src="./data/series/{}" width="100%" height="600px"></iframe>'.format(precios)
+            
+            self.report += block
+
+        
+        self.fin_report()
+
+        with open('./bootstrap/clima-precios.html' , 'w') as f :
+            f.write(self.report)
+
+    def build_up_report_clima_rendimiento(self , fuente = 'exp' , municipio='Guadalupe'):
+
+        source = 'rendimiento_{}_{}.html'.format(fuente, municipio)
+
+        ser = './series/'
+        series = [ f for f in os.listdir(ser) ]
+        series.remove('precios.html')
+        series.remove(source)
+        self.init_report()
+
+        for serie in series:
+            
+            block = '<iframe style="border: none;" src="./data/series/{}" width="100%" height="600px"></iframe>'.format(serie)
+            block += '<iframe style="border: none;" src="./data/series/{}" width="100%" height="600px"></iframe>'.format(source)
+            
+            self.report += block
+
+        self.fin_report()
+
+        with open('./bootstrap/clima-rendimiento_{}_{}.html'.format(fuente, municipio) , 'w' ) as f :
+            f.write(self.report)
+
+            
+            
+            
     def build_up_report(self ):
 
         box = "./boxs/"
@@ -441,7 +512,7 @@ class analizador():
         boxs = [ f for f in os.listdir(box ) ]
         hists = [ f for f in os.listdir(hist) ]
 
-        self.report += "<h1> Variables de clima </h1>"
+        self.report += "<h1> Series de Datos  </h1>"
         
         for serie in series:
             # agregar al reporte
@@ -466,16 +537,10 @@ class analizador():
 
         
 
-        self.report += """ 
-        </div></body> 
-        <script src="http://code.jquery.com/jquery.js"></script>
-        <script src="js/bootstrap.min.js"></script> 
-        <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
-        <script>
-        w3IncludeHTML();
-        </script>
-        </html>
-        """ # closedtag
+        self.fin_report()
+        
         
         with open( "./bootstrap/final.html" , 'w') as f:
             f.write( self.report )
+
+    
